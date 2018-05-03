@@ -1,0 +1,515 @@
+maritalstatus
+state
+zip
+isPermanentAddress
+
+vision
+referencetYpe
+
+Adress all
+
+
+
+script:
+
+
+
+
+
+date: 12/1/2018
+
+alter table STUDENT_REGISTRATION add MaritalStatus varchar(20) null
+alter table STUDENT_REGISTRATION add C_State varchar(100) null
+alter table STUDENT_REGISTRATION add C_zip varchar(100)null
+alter table STUDENT_REGISTRATION add C_city varchar(100) null
+alter table STUDENT_REGISTRATION add P_State varchar(100) null
+alter table STUDENT_REGISTRATION add P_zip varchar(10) null
+alter table STUDENT_REGISTRATION add P_city varchar(100) null
+alter table STUDENT_REGISTRATION add ReferenceType int null
+alter table STUDENT_REGISTRATION add vision varchar(20) null
+alter table [dbo].[STUDENT_REGISTRATION] add AdmissionId int default(0) 
+
+alter table STUDENT_HEIGHT_AND_WEIGHT add MVISION VARCHAR(20) NULL
+alter table STUDENT_HEIGHT_AND_WEIGHT add ADMISSIONID int default(0)
+
+create table STUDENT_REG_PREVEDUCATION_DETAIL
+(
+  EDU_ID INT identity(1,1) not null,
+  REG_NO INT NOT NULL,
+  ADMISSION_ID INT DEFAULT(0),
+  EDU_CODE VARCHAR(10) NOT NULL,
+  BOARD_UNIVERSITY VARCHAR(100) NULL,
+  COURSE_STREAM VARCHAR(150) NULL,
+  PASSING_YEAR VARCHAR(50) NULL,
+  PERCENTAGE_DIV VARCHAR(50) NULL,
+  SESSIONID INT NULL
+)
+
+
+
+create proc SMS_INSERT_UPDATE_STU_EDU_ADMISSION
+
+(
+
+@EDU_ID INT,
+
+@REG_NO INT,
+
+@ADMISSION_ID INT,
+
+@EDU_CODE varchar(10),
+
+@BOARD_UNIVERSITY varchar(10),
+
+@COURSE_STREAM varchar(10),
+
+@PASSING_YEAR varchar(10),
+
+@PERCENTAGE_DIV varchar(10),
+
+@IsUpdate bit,
+
+@SESSIONID INT,
+
+@RET INT OUTPUT
+
+)
+
+AS BEGIN
+
+IF NOT EXISTS (SELECT * FROM STUDENT_REGISTRATION WHERE REG_NO=@REG_NO )
+
+begin
+
+   IF NOT EXISTS (SELECT * FROM STUDENT_REG_PREVEDUCATION_DETAIL WHERE EDU_ID=@EDU_ID) AND @IsUpdate=0
+
+      BEGIN
+
+         INSERT INTO STUDENT_REG_PREVEDUCATION_DETAIL
+
+		 ( REG_NO,ADMISSION_ID,EDU_CODE,BOARD_UNIVERSITY,COURSE_STREAM,PASSING_YEAR,PERCENTAGE_DIV,SESSIONID)
+
+		 VALUES
+
+		 (@REG_NO,@ADMISSION_ID,@EDU_CODE,@BOARD_UNIVERSITY,@COURSE_STREAM,@PASSING_YEAR,@PERCENTAGE_DIV,@SESSIONID)
+
+
+
+		 SET @RET=@@identity 
+
+      END
+
+   ELSE
+
+      BEGIN
+
+       UPDATE STUDENT_REG_PREVEDUCATION_DETAIL SET 
+
+	   REG_NO=@REG_NO,
+
+	   ADMISSION_ID=@ADMISSION_ID,
+
+	   EDU_CODE=@EDU_CODE,
+
+	   BOARD_UNIVERSITY = @BOARD_UNIVERSITY,
+
+	   COURSE_STREAM = @COURSE_STREAM,
+
+	   PASSING_YEAR = @PASSING_YEAR,
+
+	   PERCENTAGE_DIV = @PERCENTAGE_DIV,
+
+	   SESSIONID = @SESSIONID
+
+	   WHERE EDU_ID=@EDU_ID
+
+
+
+	   SET @RET=@EDU_ID
+
+      END
+
+END
+
+END
+
+
+
+
+ALTER Procedure [dbo].[SMS_INSERT_UPDATE_STU_MEDICALS]    
+
+(          
+
+ @RegNo BIGINT,@Height VARCHAR(6),@Weight VARCHAR(6),@Alergy VARCHAR(5),        
+
+ @Alergy_Details NVARCHAR(200),@Special_Instruct NVARCHAR(200),@Blood_Group char(5),        
+
+ @Medical_History NVARCHAR(2000),@Entry_Date DATETIME,@CRITERIA INT,  
+
+ @LEFTVISION VARCHAR(30),@RIGHTVISION VARCHAR(30),
+
+ @SessionId int,@OPERATOR_CODE int,@RET INT OUTPUT        
+
+)            
+
+AS            
+
+    SET @RET=0       
+
+IF(@CRITERIA=1)--INSERT            
+
+BEGIN            
+
+ IF NOT EXISTS (SELECT REGNO FROM STUDENT_MEDICAL_DETAILS WHERE REGNO=@RegNo AND SESSIONID=@SessionId)            
+
+ BEGIN            
+
+  Insert into STUDENT_MEDICAL_DETAILS(RegNo,Height,Weight,Blood_Group,Alergy,Alergy_Details,Special_Instruct,Medical_History,Entry_Date,SESSIONID,OPERATOR_CODE,LEFTVISION,RIGHTVISION)        
+
+  Values(@RegNo,@Height,@Weight,@Blood_Group,@Alergy,@Alergy_Details,@Special_Instruct,@Medical_History,@Entry_Date,@SessionId,@OPERATOR_CODE,@LEFTVISION,@RIGHTVISION)           
+
+  SET @RET=1 --INSERT OP-PRM        
+
+  END         
+
+  ELSE IF EXISTS (SELECT REGNO FROM STUDENT_MEDICAL_DETAILS WHERE REGNO=@RegNo AND HEIGHT=@Height)            
+
+  BEGIN      
+
+   UPDATE STUDENT_MEDICAL_DETAILS SET Height=@Height,Weight=@Weight,Blood_Group=@Blood_Group,    
+
+   Alergy=@Alergy,Alergy_Details=@Alergy_Details,Special_Instruct=@Special_Instruct,      
+
+   Medical_History=@Medical_History,Entry_Date=@Entry_Date,OPERATOR_CODE=@OPERATOR_CODE,LEFTVISION=@LEFTVISION,RIGHTVISION=@RIGHTVISION  WHERE  RegNo=@RegNo      
+
+   SET @RET=2 --RECORD UPDATED OP-PRM        
+
+  END  
+
+  if (@ret >0)
+
+  begin
+
+   update Student_Registration set blood_Group=@blood_Group where reg_no=@Regno and sessionid=@SessionId
+
+  end
+
+  ELSE
+
+  BEGIN
+
+   SET @RET=0
+
+  END    
+
+ END      
+
+
+
+
+
+
+
+MaritalStatus
+C_address
+
+
+
+
+
+
+
+
+CREATE Procedure [dbo].[SMS_INSERT_UPDATE_STU_REG_ADMISSION]  
+
+
+
+(                                        
+
+
+
+@REG_NO INT,@STUDENT_NAME VARCHAR(100),@CLASS_ID INT,@DOB varchar(10),    
+
+
+
+@DOB_PROOF VARCHAR(5)=null,@GENDER CHAR(1),@STUDENT_EMAIL VARCHAR(50)= NULL,
+
+
+
+@STU_TYPE VARCHAR(10),    
+
+
+
+@NATIONALITY VARCHAR(30),@CBSE_REG_NO9 VARCHAR(25)=null,                                       
+
+
+
+@CBSE_REG_NO11 VARCHAR(25)=null,@LANGUAGE_KNOWN NVARCHAR(100)=null,    
+
+
+
+@BLOOD_GROUP VARCHAR(5),@MOTHER_TONGUE VARCHAR(50)=null,    
+
+
+
+@RELIGION VARCHAR(30)=null,@HOBBIES NVARCHAR(75)=null,    
+
+
+
+@STUD_IMG VARCHAR(50)=null,@CASTE_CATEGORY VARCHAR(30)=null,    
+
+
+
+@CASTE_PROOF VARCHAR(3)=null,@STAFF_CHILD VARCHAR(5),    
+
+
+
+@E_MAIL VARCHAR(50)=null,                  
+
+
+
+@SESSIONID SMALLINT,@PREVIOUS_SCHOOL_NAME NVARCHAR(250)=null,    
+
+
+
+@PREVIOUS_CLASS_MARKS NVARCHAR(350)=null,                    
+
+
+
+@REFERENCE_BY  NVARCHAR(250)=null,@BS_STUDID1 VARCHAR(10)=null,    
+
+
+
+@BS_STUDID2 VARCHAR(10)=null,@BS_STUDID3 VARCHAR(10)=null,    
+
+
+
+@CRITERIA INT,@OPERATOR_CODE INT=0,@REG_QUOTA VARCHAR(20)=null,    
+
+
+
+@REFF_ID INT,@RET INT OUTPUT                    
+
+
+
+                                      
+
+
+
+)                                        
+
+
+
+AS                                        
+
+
+
+BEGIN                                        
+
+
+
+IF(@CRITERIA=1)                                        
+
+
+
+BEGIN        
+
+
+
+if (@BS_STUDID1='')
+
+
+
+set @BS_STUDID1=null                                
+
+
+
+if (@BS_STUDID2='')
+
+
+
+set @BS_STUDID2=null                                
+
+
+
+if (@BS_STUDID3='')
+
+
+
+set @BS_STUDID3=null                                
+
+
+
+IF NOT EXISTS (SELECT 1 FROM STUDENT_REGISTRATION WHERE REG_NO=@REG_NO AND SESSIONID=@SESSIONID)                                        
+
+
+
+ BEGIN                                        
+
+
+
+  INSERT INTO STUDENT_REGISTRATION(STUDENT_NAME,SEX,DOB,DATE_OF_REG,REG_CLASS,                  
+
+
+
+              BOARDER_DAY_SCHOLAR,NATIONALITY,MOTHER_TONGUE,RELIGION,STUDENT_CAST,                  
+
+
+
+              BLOOD_GROUP,HOBBIES,LANGUAGE_KNOWN,E_MAIL,PREVIOUS_SCHOOL_NAME,                  
+
+
+
+              PREVIOUS_CLASS_MARKS, CBSE_REG_NO9,CBSE_REG_NO11,STAFF_CHILD,REFERENCE_BY,                  
+
+
+
+              DOB_PROOF,STUD_IMG,CASTE_PROOF,SESSIONID,ADM_APPROVAL,ADM_STATUS,    
+
+
+
+              OPERATOR_CODE,REG_QUOTA,REFF_ID,BS_STUDID1,BS_STUDID2,BS_STUDID3,STUDENT_EMAIL)                    
+
+
+
+   VALUES(@STUDENT_NAME,@GENDER,CONVERT(DATE,@DOB,101),GETDATE(),@CLASS_ID,@STU_TYPE,@NATIONALITY,@MOTHER_TONGUE,                  
+
+
+
+            @RELIGION,@CASTE_CATEGORY,@BLOOD_GROUP,@HOBBIES,@LANGUAGE_KNOWN,@E_MAIL,                  
+
+
+
+            @PREVIOUS_SCHOOL_NAME,@PREVIOUS_CLASS_MARKS,@CBSE_REG_NO9,@CBSE_REG_NO11,                  
+
+
+
+            @STAFF_CHILD,@REFERENCE_BY,@DOB_PROOF,@STUD_IMG,@CASTE_PROOF,@SESSIONID,'No',    
+
+
+
+            0,@OPERATOR_CODE,@REG_QUOTA,@REFF_ID,@BS_STUDID1,@BS_STUDID2,@BS_STUDID3,@STUDENT_EMAIL)                       
+
+
+
+                                            
+
+
+
+   SET @RET=@@identity --INSERT                                     
+
+
+
+ END                                     
+
+
+
+ELSE                                    
+
+
+
+ BEGIN                                    
+
+
+
+ IF  EXISTS (SELECT REG_NO FROM STUDENT_REGISTRATION WHERE REG_NO=@REG_NO)                                        
+
+
+
+  BEGIN                          
+
+
+
+        UPDATE STUDENT_REGISTRATION SET                  
+
+
+
+        STUDENT_NAME=@STUDENT_NAME,SEX=@GENDER,DOB=CONVERT(DATE,@DOB,101),DATE_OF_REG=GETDATE(),                  
+
+
+
+        REG_CLASS=@CLASS_ID,BOARDER_DAY_SCHOLAR=@STU_TYPE,NATIONALITY=@NATIONALITY,                  
+
+
+
+        BLOOD_GROUP=@BLOOD_GROUP,HOBBIES=@HOBBIES,LANGUAGE_KNOWN=@LANGUAGE_KNOWN,                  
+
+
+
+        E_MAIL=@E_MAIL,PREVIOUS_SCHOOL_NAME=@PREVIOUS_SCHOOL_NAME,                  
+
+
+
+        PREVIOUS_CLASS_MARKS=@PREVIOUS_CLASS_MARKS,CBSE_REG_NO9=@CBSE_REG_NO9,                  
+
+
+
+        CBSE_REG_NO11=@CBSE_REG_NO11,STAFF_CHILD=@STAFF_CHILD,REFERENCE_BY=@REFERENCE_BY,                  
+
+
+
+        DOB_PROOF=@DOB_PROOF,STUD_IMG=@STUD_IMG,CASTE_PROOF=@CASTE_PROOF,@OPERATOR_CODE=@OPERATOR_CODE,          
+
+
+
+        REG_QUOTA=@REG_QUOTA,REFF_ID=@REFF_ID, 
+
+
+
+        BS_STUDID1=@BS_STUDID1,BS_STUDID2=@BS_STUDID2,BS_STUDID3=@BS_STUDID3
+
+
+
+        ,STUDENT_EMAIL=@STUDENT_EMAIL
+
+
+
+        WHERE  SESSIONID=@SESSIONID AND REG_NO=@REG_NO                  
+
+
+
+        SET @RET=2  --DUPLICACY                      
+
+
+
+  END                          
+
+
+
+                          
+
+
+
+                                  
+
+
+
+ END                                       
+
+
+
+END                      
+
+
+
+END   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

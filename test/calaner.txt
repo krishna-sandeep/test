@@ -1,0 +1,57 @@
+
+function InitializeDate(min, max) {
+
+    var mns = min.split('/');
+    var mxs = max.split('/');
+    var dateFormat = "dd/mm/yy",
+from = tjq("#txtdate")
+.datepicker({
+    dateFormat: "dd/mm/yy",
+    defaultDate: new Date(),
+    minDate: new Date(mns[2], mns[1] - 1, mns[0]),
+    maxDate: new Date(mxs[2], mxs[1] - 1, mxs[0]),
+    numberOfMonths: 1,
+    beforeShow: addCustomInformation,
+
+    beforeShowDay: function (date) {
+        return [true, date.getDay() === 5 || date.getDay() === 6 ? "weekend" : "weekday"];
+    },
+    onChangeMonthYear: addCustomInformation,
+    onClose: function (selectedDate) {
+        //$("#txtdate").focus();
+    },
+    onSelect: function (selectedDate) {
+        addCustomInformation();
+        // to.datepicker("option", "minDate", getDate(this));
+        var scope = angular.element(document.getElementById('mainbody')).scope();
+        scope.onSelectedDateChange(selectedDate);
+        scope.$apply();
+    },
+
+})
+.on("change", function () {
+    to.datepicker("option", "minDate", getDate(this));
+
+});
+    debugger;
+   // addCustomInformation();
+}
+function addCustomInformation() {
+    debugger;
+    setTimeout(function () {
+        tjq(".ui-datepicker-calendar td").filter(function () {
+            debugger;
+
+            var date = tjq(this).text();
+            var yy = tjq(this).data('year');
+            var mm = tjq(this).data('month');
+            console.log(tjq(this).data('month'));
+            console.log(tjq(this).data('year'));
+            console.log(date);
+            console.log(tjq(this));
+            // console.log(new Date(yy, mm + 1, date));
+            return /\d/.test(date);
+            //tjq(this).find("a").attr('data-custom', 120);
+        }).find("a").attr('data-custom', 120);
+    }, 0);
+}
